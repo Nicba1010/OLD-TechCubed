@@ -16,7 +16,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import com.nicba1010.techcubed.Tech3;
+import com.nicba1010.techcubed.TechCubed;
 import com.nicba1010.techcubed.init.ModItems;
 import com.nicba1010.techcubed.tileentity.TileEntityCodeDoor;
 
@@ -240,7 +240,7 @@ public class BlockCodeDoor extends BlockContainerBase {
 		// TileEntityCodeDoor te = (TileEntityCodeDoor) world.getTileEntity(x,
 		// y,
 		// z);
-		player.openGui(Tech3.instance, 1, world, x, y, z);
+		player.openGui(TechCubed.instance, 1, world, x, y, z);
 	}
 
 	public void toggleCodeDoor(World world, int x, int y, int z,
