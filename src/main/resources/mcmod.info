@@ -1,0 +1,21 @@
+[
+{
+  "modid": "techcubed",
+  "name": "Tech Cubed",
+  "description": "Tech",
+  "version": "14.08.07.02.17",
+  "mcversion": "1.7.10",
+  "url": "",
+  "updateUrl": "",
+  "authorList": [
+    "nicba1010"
+  ],
+  "credits": "To all my downloaders, I love you!",
+  "logoFile": "",
+  "screenshots": [
+  ],
+  "parent":"",
+  "dependencies": [
+  ]
+}
+]
