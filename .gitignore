@@ -1,0 +1,12 @@
+/bin/
+/build/
+/eclipse/
+/gradle/
+/.gradle/
+/.settings/
+/forge-*changelog.txt
+/MinecraftForge-*.txt
+/.classpath
+/*-fml.txt
+/.project
+/README.txt

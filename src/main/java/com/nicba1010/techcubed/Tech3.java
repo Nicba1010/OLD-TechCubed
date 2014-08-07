@@ -33,7 +33,6 @@ public class Tech3 {
 		LogHelper.info("Pre Initialization Complete!");
 
 		ModItems.init();
-
 		ModBlocks.init();
 
 		proxy.registerTileEntities();
