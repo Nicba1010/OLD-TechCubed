@@ -1,13 +1,18 @@
 package com.nicba1010.techcubed.block;
 
+import ibxm.Player;
+
 import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IconFlipped;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
@@ -25,9 +30,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockCodeDoor extends BlockContainerBase {
 	@SideOnly(Side.CLIENT)
-	private IIcon[] field_150017_a;
+	private IIcon[] icons1;
 	@SideOnly(Side.CLIENT)
-	private IIcon[] field_150016_b;
+	private IIcon[] icons2;
 
 	public BlockCodeDoor(Material material) {
 		super(material);
@@ -43,7 +48,7 @@ public class BlockCodeDoor extends BlockContainerBase {
 	 */
 	@SideOnly(Side.CLIENT)
 	public IIcon getIcon(int side, int meta) {
-		return this.field_150016_b[0];
+		return this.icons2[0];
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -81,25 +86,23 @@ public class BlockCodeDoor extends BlockContainerBase {
 				}
 			}
 
-			return flag2 ? this.field_150017_a[flag1 ? 1 : 0]
-					: this.field_150016_b[flag1 ? 1 : 0];
+			return flag2 ? this.icons1[flag1 ? 1 : 0] : this.icons2[flag1 ? 1
+					: 0];
 		} else {
-			return this.field_150016_b[0];
+			return this.icons2[0];
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister p_149651_1_) {
-		this.field_150017_a = new IIcon[2];
-		this.field_150016_b = new IIcon[2];
-		this.field_150017_a[0] = p_149651_1_.registerIcon(this.getTextureName()
+		this.icons1 = new IIcon[2];
+		this.icons2 = new IIcon[2];
+		this.icons1[0] = p_149651_1_.registerIcon(this.getTextureName()
 				+ "_upper");
-		this.field_150016_b[0] = p_149651_1_.registerIcon(this.getTextureName()
+		this.icons2[0] = p_149651_1_.registerIcon(this.getTextureName()
 				+ "_lower");
-		this.field_150017_a[1] = new IconFlipped(this.field_150017_a[0], true,
-				false);
-		this.field_150016_b[1] = new IconFlipped(this.field_150016_b[0], true,
-				false);
+		this.icons1[1] = new IconFlipped(this.icons1[0], true, false);
+		this.icons2[1] = new IconFlipped(this.icons2[0], true, false);
 	}
 
 	/**
@@ -231,16 +234,16 @@ public class BlockCodeDoor extends BlockContainerBase {
 	public boolean onBlockActivated(World world, int x, int y, int z,
 			EntityPlayer player, int p_149727_6_, float p_149727_7_,
 			float p_149727_8_, float p_149727_9_) {
-		openGui(player, world, x, y, z);
-		toggleCodeDoor(world, x, y, z, player);
+		if (player.isSneaking()) {
+		} else {
+			openGui(player, world, x, y, z);
+		}
 		return true;
 	}
 
 	public void openGui(EntityPlayer player, World world, int x, int y, int z) {
-		// TileEntityCodeDoor te = (TileEntityCodeDoor) world.getTileEntity(x,
-		// y,
-		// z);
-		player.openGui(TechCubed.instance, 1, world, x, y, z);
+		if (isDoorUpperPart(world, x, y, z))
+			player.openGui(TechCubed.instance, 1, world, x, y, z);
 	}
 
 	public void toggleCodeDoor(World world, int x, int y, int z,
@@ -248,38 +251,16 @@ public class BlockCodeDoor extends BlockContainerBase {
 		int i1 = this.getDoorPart(world, x, y, z);
 		int j1 = i1 & 7;
 		j1 ^= 4;
-		System.out.println(i1);
+		System.out.println(j1);
 		if ((i1 & 8) == 0) {
-			System.out.println("bottom block");
 			world.setBlockMetadataWithNotify(x, y, z, j1, 2);
 			world.markBlockRangeForRenderUpdate(x, y, z, x, y, z);
 		} else {
-			System.out.println("upper block");
 			world.setBlockMetadataWithNotify(x, y - 1, z, j1, 2);
 			world.markBlockRangeForRenderUpdate(x, y - 1, z, x, y, z);
 		}
 
 		world.playAuxSFXAtEntity(player, 1003, x, y, z, 0);
-	}
-
-	public void toggleDoor(World world, int x, int y, int z,
-			boolean blockEmittingPower) {
-		int l = this.getDoorPart(world, x, y, z);
-		boolean flag1 = (l & 4) != 0;
-		if (flag1 != blockEmittingPower) {
-			int i1 = l & 7;
-			i1 ^= 4;
-
-			if ((l & 8) == 0) {
-				world.setBlockMetadataWithNotify(x, y, z, i1, 2);
-				world.markBlockRangeForRenderUpdate(x, y, z, x, y, z);
-			} else {
-				world.setBlockMetadataWithNotify(x, y - 1, z, i1, 2);
-				world.markBlockRangeForRenderUpdate(x, y - 1, z, x, y, z);
-			}
-
-			world.playAuxSFXAtEntity((EntityPlayer) null, 1003, x, y, z, 0);
-		}
 	}
 
 	/**
@@ -313,13 +294,6 @@ public class BlockCodeDoor extends BlockContainerBase {
 					this.dropBlockAsItem(world, x, y, z, l, 0);
 				}
 			} else {
-				boolean flag1 = world.isBlockIndirectlyGettingPowered(x, y, z)
-						|| world.isBlockIndirectlyGettingPowered(x, y + 1, z);
-
-				if ((flag1 || neighbourBlock.canProvidePower())
-						&& neighbourBlock != this) {
-					this.toggleDoor(world, x, y, z, flag1);
-				}
 			}
 		} else {
 			if (world.getBlock(x, y - 1, z) != this) {
@@ -332,9 +306,8 @@ public class BlockCodeDoor extends BlockContainerBase {
 		}
 	}
 
-	public Item getItemDropped(int p_149650_1_, Random p_149650_2_,
-			int p_149650_3_) {
-		return (p_149650_1_ & 8) != 0 ? null : ModItems.codeDoorItem;
+	public Item getItemDropped(int par1, Random rand, int par3) {
+		return (par1 & 8) != 0 ? null : ModItems.codeDoorItem;
 	}
 
 	/**
@@ -366,6 +339,17 @@ public class BlockCodeDoor extends BlockContainerBase {
 		return 2;
 	}
 
+	public boolean isDoorUpperPart(World world, int x, int y, int z) {
+		int i1 = this.getDoorPart(world, x, y, z);
+		int j1 = i1 & 7;
+		j1 ^= 4;
+		if ((i1 & 8) == 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	public int getDoorPart(IBlockAccess world, int x, int y, int z) {
 		int l = world.getBlockMetadata(x, y, z);
 		boolean flag = (l & 8) != 0;
@@ -395,16 +379,16 @@ public class BlockCodeDoor extends BlockContainerBase {
 	/**
 	 * Called when the block is attempted to be harvested
 	 */
-	public void onBlockHarvested(World world, int x, int y, int z,
-			int p_149681_5_, EntityPlayer player) {
-		if (player.capabilities.isCreativeMode && (p_149681_5_ & 8) != 0
+	public void onBlockHarvested(World world, int x, int y, int z, int par5,
+			EntityPlayer player) {
+		if (player.capabilities.isCreativeMode && (par5 & 8) != 0
 				&& world.getBlock(x, y - 1, z) == this) {
 			world.setBlockToAir(x, y - 1, z);
 		}
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World world, int p_149915_2_) {
+	public TileEntity createNewTileEntity(World world, int metadata) {
 		return new TileEntityCodeDoor();
 	}
 }

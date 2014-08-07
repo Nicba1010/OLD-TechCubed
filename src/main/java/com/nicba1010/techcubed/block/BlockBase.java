@@ -18,6 +18,13 @@ public class BlockBase extends Block {
 
 	public BlockBase() {
 		this(Material.rock);
+		this.setCreativeTab(ChemCreativeTabs.CHEM_TAB);
+	}
+
+	public BlockBase(Material material, boolean displayInCreativeTab) {
+		super(material);
+		if (displayInCreativeTab)
+			this.setCreativeTab(ChemCreativeTabs.CHEM_TAB);
 	}
 
 	@Override

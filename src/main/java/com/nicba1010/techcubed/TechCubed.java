@@ -1,5 +1,10 @@
 package com.nicba1010.techcubed;
 
+import java.io.IOException;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.ClassPath;
+import com.google.common.reflect.ClassPath.ClassInfo;
 import com.nicba1010.techcubed.handler.ConfigurationHandler;
 import com.nicba1010.techcubed.handler.GUIHandler;
 import com.nicba1010.techcubed.init.ModBlocks;
@@ -30,12 +35,12 @@ public class TechCubed {
 	public void preInit(FMLPreInitializationEvent event) {
 		ConfigurationHandler.init(event.getSuggestedConfigurationFile());
 		FMLCommonHandler.instance().bus().register(new ConfigurationHandler());
-		LogHelper.info("Pre Initialization Complete!");
 
 		ModItems.init();
 		ModBlocks.init();
 
 		proxy.registerTileEntities();
+		LogHelper.info("Pre Initialization Complete!");
 	}
 
 	@EventHandler

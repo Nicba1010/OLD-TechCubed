@@ -13,7 +13,7 @@ public class PacketHandler {
 
 	public static void init() {
 		LogHelper.debug("registerig messages");
-		INSTANCE.registerMessage(PacketDoorCodeEntered.Handler.class,
-				PacketDoorCodeEntered.class, 0, Side.SERVER);
+		INSTANCE.registerMessage(MessageDoorCodeEntered.Handler.class,
+				MessageDoorCodeEntered.class, 0, Side.SERVER);
 	}
 }

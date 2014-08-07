@@ -1,13 +1,15 @@
 package com.nicba1010.techcubed.item;
 
-import com.nicba1010.techcubed.init.ModBlocks;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+
+import com.nicba1010.techcubed.TechCubed;
+import com.nicba1010.techcubed.init.ModBlocks;
 
 public class ItemCodeDoor extends ItemBase {
 	private Material doorMaterial;
@@ -46,7 +48,7 @@ public class ItemCodeDoor extends ItemBase {
 				} else {
 					int i1 = MathHelper
 							.floor_double((double) ((player.rotationYaw + 180.0F) * 4.0F / 360.0F) - 0.5D) & 3;
-					placeDoorBlock(world, x, y, z, i1, block);
+					placeDoorBlock(world, x, y, z, i1, block, player);
 					--itemstack.stackSize;
 					return true;
 				}
@@ -57,7 +59,7 @@ public class ItemCodeDoor extends ItemBase {
 	}
 
 	public static void placeDoorBlock(World world, int x, int y, int z,
-			int metadata, Block block) {
+			int metadata, Block block, EntityPlayer player) {
 		byte b0 = 0;
 		byte b1 = 0;
 
@@ -97,5 +99,6 @@ public class ItemCodeDoor extends ItemBase {
 		world.setBlock(x, y + 1, z, block, 8 | (flag2 ? 1 : 0), 2);
 		world.notifyBlocksOfNeighborChange(x, y, z, block);
 		world.notifyBlocksOfNeighborChange(x, y + 1, z, block);
+		player.openGui(TechCubed.instance, 1, world, x, y + 1, z);
 	}
 }
