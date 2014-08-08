@@ -19,7 +19,9 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IWorldAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import com.nicba1010.techcubed.TechCubed;
 import com.nicba1010.techcubed.init.ModItems;
@@ -54,7 +56,7 @@ public class BlockCodeDoor extends BlockContainerBase {
 	@SideOnly(Side.CLIENT)
 	public IIcon getIcon(IBlockAccess world, int x, int y, int z, int side) {
 		if (side != 1 && side != 0) {
-			int i1 = this.getDoorPart(world, x, y, z);
+			int i1 = this.getDoorMetadata(world, x, y, z);
 			int j1 = i1 & 3;
 			boolean flag = (i1 & 4) != 0;
 			boolean flag1 = false;
@@ -85,22 +87,25 @@ public class BlockCodeDoor extends BlockContainerBase {
 					flag1 = !flag1;
 				}
 			}
-
-			return flag2 ? this.icons1[flag1 ? 1 : 0] : this.icons2[flag1 ? 1
-					: 0];
+			if (flag2) {
+				return this.icons1[flag1 ? 1 : 0];
+			} else {
+				return this.icons2[flag1 ? 1 : 0];
+			}
 		} else {
 			return this.icons2[0];
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
-	public void registerBlockIcons(IIconRegister p_149651_1_) {
+	public void registerBlockIcons(IIconRegister iconRegister) {
 		this.icons1 = new IIcon[2];
 		this.icons2 = new IIcon[2];
-		this.icons1[0] = p_149651_1_.registerIcon(this.getTextureName()
-				+ "_upper");
-		this.icons2[0] = p_149651_1_.registerIcon(this.getTextureName()
-				+ "_lower");
+		String baseName = String.format("%s",
+				getUnwrappedUnlocalizedName(this.getUnlocalizedName()));
+		this.icons1[0] = iconRegister.registerIcon(baseName + "_upper");
+		this.icons2[0] = iconRegister.registerIcon(baseName + "_lower");
+
 		this.icons1[1] = new IconFlipped(this.icons1[0], true, false);
 		this.icons2[1] = new IconFlipped(this.icons2[0], true, false);
 	}
@@ -115,7 +120,7 @@ public class BlockCodeDoor extends BlockContainerBase {
 	}
 
 	public boolean getBlocksMovement(IBlockAccess world, int x, int y, int z) {
-		int l = this.getDoorPart(world, x, y, z);
+		int l = this.getDoorMetadata(world, x, y, z);
 		return (l & 4) != 0;
 	}
 
@@ -160,23 +165,23 @@ public class BlockCodeDoor extends BlockContainerBase {
 	 */
 	public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y,
 			int z) {
-		this.func_150011_b(this.getDoorPart(world, x, y, z));
+		this.determineBlockBounds(this.getDoorMetadata(world, x, y, z));
 	}
 
 	public int func_150013_e(IBlockAccess world, int x, int y, int z) {
-		return this.getDoorPart(world, x, y, z) & 3;
+		return this.getDoorMetadata(world, x, y, z) & 3;
 	}
 
 	public boolean func_150015_f(IBlockAccess world, int x, int y, int z) {
-		return (this.getDoorPart(world, x, y, z) & 4) != 0;
+		return (this.getDoorMetadata(world, x, y, z) & 4) != 0;
 	}
 
-	private void func_150011_b(int p_150011_1_) {
+	private void determineBlockBounds(int metadata) {
 		float f = 0.1875F;
 		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 2.0F, 1.0F);
-		int j = p_150011_1_ & 3;
-		boolean flag = (p_150011_1_ & 4) != 0;
-		boolean flag1 = (p_150011_1_ & 16) != 0;
+		int j = metadata & 3;
+		boolean flag = (metadata & 4) != 0;
+		boolean flag1 = (metadata & 16) != 0;
 
 		if (j == 0) {
 			if (flag) {
@@ -235,20 +240,36 @@ public class BlockCodeDoor extends BlockContainerBase {
 			EntityPlayer player, int p_149727_6_, float p_149727_7_,
 			float p_149727_8_, float p_149727_9_) {
 		if (player.isSneaking()) {
+			if (this.isDoorOpen(world, x, y, z)) {
+				this.toggleCodeDoor(world, x, y, z, player);
+			}
 		} else {
 			openGui(player, world, x, y, z);
 		}
 		return true;
 	}
 
+	private boolean isDoorOpen(World world, int x, int y, int z) {
+		int metadata;
+		if (isDoorUpperPart(world, x, y, z)) {
+			metadata = world.getBlockMetadata(x, y - 1, z);
+		} else {
+			metadata = world.getBlockMetadata(x, y, z);
+		}
+		return (metadata & 4) != 0;
+	}
+
 	public void openGui(EntityPlayer player, World world, int x, int y, int z) {
 		if (isDoorUpperPart(world, x, y, z))
 			player.openGui(TechCubed.instance, 1, world, x, y, z);
+		else {
+			player.openGui(TechCubed.instance, 1, world, x, y + 1, z);
+		}
 	}
 
 	public void toggleCodeDoor(World world, int x, int y, int z,
 			EntityPlayer player) {
-		int i1 = this.getDoorPart(world, x, y, z);
+		int i1 = this.getDoorMetadata(world, x, y, z);
 		int j1 = i1 & 7;
 		j1 ^= 4;
 		System.out.println(j1);
@@ -340,7 +361,7 @@ public class BlockCodeDoor extends BlockContainerBase {
 	}
 
 	public boolean isDoorUpperPart(World world, int x, int y, int z) {
-		int i1 = this.getDoorPart(world, x, y, z);
+		int i1 = this.getDoorMetadata(world, x, y, z);
 		int j1 = i1 & 7;
 		j1 ^= 4;
 		if ((i1 & 8) == 0) {
@@ -350,7 +371,7 @@ public class BlockCodeDoor extends BlockContainerBase {
 		}
 	}
 
-	public int getDoorPart(IBlockAccess world, int x, int y, int z) {
+	public int getDoorMetadata(IBlockAccess world, int x, int y, int z) {
 		int l = world.getBlockMetadata(x, y, z);
 		boolean flag = (l & 8) != 0;
 		int i1;

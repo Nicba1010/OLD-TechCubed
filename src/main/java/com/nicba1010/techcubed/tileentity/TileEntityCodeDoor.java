@@ -14,6 +14,11 @@ public class TileEntityCodeDoor extends TileEntity {
 	}
 
 	@Override
+	public boolean canUpdate() {
+		return false;
+	}
+
+	@Override
 	public void readFromNBT(NBTTagCompound data) {
 		super.readFromNBT(data);
 		code = data.getString("code");

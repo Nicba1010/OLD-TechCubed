@@ -134,6 +134,7 @@ public class GuiCodeDoor extends GuiScreen {
 		this.drawString(this.fontRendererObj, "Code:", this.width / 2 - 150,
 				37, 10526880);
 		this.codeField.drawTextBox();
+		this.info.drawTextBox();
 		byte b0 = 75;
 		byte b1 = 0;
 		FontRenderer fontrenderer = this.fontRendererObj;
